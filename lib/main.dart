@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:working_with_apis/screens/login_screen.dart';
+import 'package:working_with_apis/screens/registeration_screen.dart';
 
 void main() {
   runApp(MyApp());
@@ -13,8 +15,10 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
+      home: LoginScreen(),
       routes: {
-
+        RegistrationScreen.id: (context) => RegistrationScreen(),
+        LoginScreen.id: (context) => LoginScreen(),
       },
     );
   }
