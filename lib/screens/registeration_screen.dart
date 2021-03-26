@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:working_with_apis/components/confirm_button.dart';
 import 'package:working_with_apis/components/custom_dialog.dart';
 import 'package:working_with_apis/components/custom_textfield.dart';
@@ -111,6 +112,33 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
         );
       },
     );
+  }
+
+  Future<void> saveToPreferences(
+      {String firstName,
+        String lastName,
+        String token,
+        String email,
+        String password}) async {
+    SharedPreferences preferences = await SharedPreferences.getInstance();
+    if (firstName != null) {
+      preferences.setString("firstName", firstName);
+    }
+    if (lastName != null) {
+      preferences.setString("lastName", lastName);
+    }
+    if (token != null) {
+      preferences.setString("token", token);
+    }
+    if (password != null) {
+      preferences.setString("password", password);
+    }
+    if (email != null) {
+      preferences.setString("email", email);
+    }
+    if (token != null) {
+      preferences.setString("token", token);
+    }
   }
 
 }
