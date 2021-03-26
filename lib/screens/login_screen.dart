@@ -13,46 +13,48 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen> {
   FocusNode node;
   TextEditingController emailController, passwordController;
+
   @override
   Widget build(BuildContext context) {
     node = FocusScope.of(context);
     LoginScreen.size = MediaQuery.of(context).size;
-    return Scaffold(
-      body: SafeArea(
-        child: SingleChildScrollView(
-          child: Column(
-            children: [
-              MyTestField(
-                hint: "Email",
-                node: node,
-                isLast: false,
-                isPassword: false,
-                controller: emailController,
-                color: Colors.black,
+    return FutureBuilder(
+      builder: (context, snapshot) {
+        return Scaffold(
+          body: SafeArea(
+            child: SingleChildScrollView(
+              child: Column(
+                children: [
+                  MyTextField(
+                    hint: "Email",
+                    node: node,
+                    isLast: false,
+                    isPassword: false,
+                    controller: emailController,
+                    color: Colors.black,
+                  ),
+                  MyTextField(
+                    hint: "Password",
+                    node: node,
+                    isLast: true,
+                    isPassword: true,
+                    controller: passwordController,
+                    color: Colors.black,
+                  ),
+                  MyConfirmButton(
+                    text: 'Continue',
+                    onPressed: () {
+                      onContinuePressed();
+                    },
+                  ),
+                ],
               ),
-              MyTestField(
-                hint: "Password",
-                node: node,
-                isLast: true,
-                isPassword: true,
-                controller: passwordController,
-                color: Colors.black,
-              ),
-              MyConfirmButton(
-                text: 'Continue',
-                onPressed: () {
-                  onContinuePressed();
-                },
-              ),
-            ],
+            ),
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 
-  onContinuePressed(){
-
-  }
-
+  onContinuePressed() {}
 }

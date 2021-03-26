@@ -3,7 +3,7 @@ import 'package:working_with_apis/screens/login_screen.dart';
 
 import '../constants.dart';
 
-class MyTestField extends StatelessWidget {
+class MyTextField extends StatelessWidget {
   final Color color;
   final FocusNode node;
   final bool isLast;
@@ -11,7 +11,7 @@ class MyTestField extends StatelessWidget {
   final bool isPassword;
   final TextEditingController controller;
 
-  MyTestField({this.hint, this.isPassword, this.color, this.node, this.controller, this.isLast});
+  MyTextField({this.hint, this.isPassword, this.color, this.node, this.controller, this.isLast});
 
   @override
   Widget build(BuildContext context) {
