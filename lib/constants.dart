@@ -13,3 +13,5 @@ final kBodyTextStyle = TextStyle(
   fontSize: 18,
   fontWeight: FontWeight.w500,
 );
+
+final String mainUrl = '';

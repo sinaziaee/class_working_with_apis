@@ -3,10 +3,18 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:working_with_apis/components/confirm_button.dart';
 import 'package:working_with_apis/components/custom_dialog.dart';
 import 'package:working_with_apis/components/custom_textfield.dart';
+import 'package:working_with_apis/constants.dart';
 import 'package:working_with_apis/models/user.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert' as convert;
+
+import 'package:working_with_apis/screens/home_screen.dart';
+
+import 'login_screen.dart';
 
 class RegistrationScreen extends StatefulWidget {
   static String id = 'registration_screen';
+
   @override
   _RegistrationScreenState createState() => _RegistrationScreenState();
 }
@@ -14,9 +22,15 @@ class RegistrationScreen extends StatefulWidget {
 class _RegistrationScreenState extends State<RegistrationScreen> {
   User user;
   FocusNode node;
-  TextEditingController emailController, passwordController,
-  rePasswordController, firstNameController, lastNameController;
+  TextEditingController emailController,
+      passwordController,
+      rePasswordController,
+      firstNameController,
+      lastNameController;
   String token;
+
+  String url = '$mainUrl/api/register/';
+
   @override
   void initState() {
     firstNameController = TextEditingController();
@@ -35,6 +49,42 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
         child: SingleChildScrollView(
           child: Column(
             children: [
+              SizedBox(
+                height: LoginScreen.size.height * 0.02,
+              ),
+              Row(
+                children: [
+                  SizedBox(
+                    width: LoginScreen.size.width * 0.05,
+                  ),
+                  Text(
+                    'Sign Up',
+                    style: TextStyle(
+                      color: Colors.black,
+                      fontSize: 20,
+                    ),
+                  ),
+                ],
+              ),
+              SizedBox(
+                height: LoginScreen.size.height * 0.03,
+              ),
+              MyTextField(
+                hint: "First Name",
+                node: node,
+                isLast: false,
+                isPassword: false,
+                controller: emailController,
+                color: Colors.black,
+              ),
+              MyTextField(
+                hint: "Last Name",
+                node: node,
+                isLast: false,
+                isPassword: false,
+                controller: emailController,
+                color: Colors.black,
+              ),
               MyTextField(
                 hint: "Email",
                 node: node,
@@ -46,16 +96,38 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
               MyTextField(
                 hint: "Password",
                 node: node,
+                isLast: false,
+                isPassword: true,
+                controller: emailController,
+                color: Colors.black,
+              ),
+              MyTextField(
+                hint: "Re-Password",
+                node: node,
                 isLast: true,
                 isPassword: true,
                 controller: passwordController,
                 color: Colors.black,
+              ),
+              SizedBox(
+                height: LoginScreen.size.height * 0.04,
               ),
               MyConfirmButton(
                 text: 'Continue',
                 onPressed: () {
                   onContinuePressed();
                 },
+              ),
+              TextButton(
+                onPressed: () {
+                  Navigator.popAndPushNamed(context, LoginScreen.id);
+                },
+                child: Text(
+                  'I have an account, go to Login',
+                  style: TextStyle(
+                    color: Colors.grey[600],
+                  ),
+                ),
               ),
             ],
           ),
@@ -92,11 +164,25 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
         lastName: lastName,
         email: email,
         password: password,
-        token: token);
+        token: '');
     return true;
   }
 
-  onContinuePressed() {}
+  onContinuePressed() async {
+    if (isValidated()) {
+      await uploadInfo(user);
+      await saveToPreferences(user);
+      Navigator.pushNamed(
+        context,
+        HomeScreen.id,
+        arguments: {
+          'user': user,
+        },
+      );
+    } else {
+      // pass
+    }
+  }
 
   _showDialog(String message) {
     showDialog(
@@ -104,7 +190,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
       builder: (BuildContext context) {
         return CustomDialog(
           color: Colors.black,
-          text: 'OK !!!',
+          text: ' OK !!!',
           onPressed: () {
             Navigator.pop(context);
           },
@@ -114,31 +200,49 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
     );
   }
 
-  Future<void> saveToPreferences(
-      {String firstName,
-        String lastName,
-        String token,
-        String email,
-        String password}) async {
+  Future<void> uploadInfo(User user) async {
+    try {
+      http.Response response = await http.post(
+        Uri.parse(url),
+        body: {
+          user.toJson(),
+        },
+        headers: {
+          "Accept": "application/json",
+          "content-type": "application/json"
+        },
+      );
+      var jsonResponse = convert.jsonDecode(response.body);
+      if (response.statusCode < 400) {
+        user.token = jsonResponse['token'];
+        // _showDialog('Successful');
+      } else {
+        _showDialog('Error: ${jsonResponse['status']}');
+        return;
+      }
+    } catch (e) {
+      print('MyError: $e');
+      _showDialog('An Error happened');
+      return;
+    }
+  }
+
+  Future<void> saveToPreferences(User user) async {
     SharedPreferences preferences = await SharedPreferences.getInstance();
-    if (firstName != null) {
-      preferences.setString("firstName", firstName);
+    if (user.firstName != null) {
+      preferences.setString("firstName", user.firstName);
     }
-    if (lastName != null) {
-      preferences.setString("lastName", lastName);
+    if (user.lastName != null) {
+      preferences.setString("lastName", user.lastName);
     }
-    if (token != null) {
-      preferences.setString("token", token);
+    if (user.password != null) {
+      preferences.setString("password", user.password);
     }
-    if (password != null) {
-      preferences.setString("password", password);
-    }
-    if (email != null) {
-      preferences.setString("email", email);
+    if (user.email != null) {
+      preferences.setString("email", user.email);
     }
     if (token != null) {
       preferences.setString("token", token);
     }
   }
-
 }
