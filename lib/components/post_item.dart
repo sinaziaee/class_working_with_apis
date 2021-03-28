@@ -15,7 +15,7 @@ class PostItem extends StatelessWidget {
         title: Text(post.title),
         subtitle: Text(post.description),
         trailing: Text(
-          post.dateTime.substring(0, 10),
+          post.dateTime.toString().substring(0, 10),
         ),
       ),
     );

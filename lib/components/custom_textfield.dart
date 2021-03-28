@@ -10,17 +10,24 @@ class MyTextField extends StatelessWidget {
   final String hint;
   final bool isPassword;
   final TextEditingController controller;
+  final Size size;
 
-  MyTextField({this.hint, this.isPassword, this.color, this.node, this.controller, this.isLast});
+  MyTextField(
+      {this.hint,
+      this.isPassword,
+      this.color,
+      this.node,
+      this.controller,
+      this.isLast,
+      @required this.size});
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: LoginScreen.size.height * 0.06,
+      height: size.height * 0.06,
       margin: EdgeInsets.symmetric(
-          horizontal: LoginScreen.size.width * 0.05,
-          vertical: LoginScreen.size.height * 0.005
-      ),
+          horizontal: size.width * 0.05,
+          vertical: size.height * 0.005),
       child: TextFormField(
         controller: controller,
         onEditingComplete: () => (isLast == null || isLast == false)
@@ -28,9 +35,9 @@ class MyTextField extends StatelessWidget {
             : node.unfocus(),
         decoration: InputDecoration(
           contentPadding: EdgeInsets.only(
-            bottom: LoginScreen.size.height * 0.03,
-            left: LoginScreen.size.width * 0.03,
-            right: LoginScreen.size.width * 0.03,
+            bottom: size.height * 0.03,
+            left: size.width * 0.03,
+            right: size.width * 0.03,
           ),
           hintText: hint,
           focusedBorder: kOutLineInputBorder.copyWith(

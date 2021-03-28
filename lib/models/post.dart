@@ -1,5 +1,6 @@
 class Post{
-  String title, description, sender, dateTime;
+  String title, description, sender;
+  DateTime dateTime;
 
   Post({this.title, this.description, this.dateTime, this.sender});
 

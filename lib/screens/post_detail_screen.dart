@@ -16,7 +16,7 @@ class PostDetailScreen extends StatefulWidget {
 class _PostDetailScreenState extends State<PostDetailScreen> {
   String title, description, datetime, sender;
 
-  String url = '$mainUrl/api/posts';
+  String url = '$mainUrl/api/post';
   Map args;
   String token, postId;
 

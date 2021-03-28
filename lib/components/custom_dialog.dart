@@ -7,9 +7,15 @@ class CustomDialog extends StatelessWidget {
   final String message;
   final Color color;
   final String text;
+  final Size size;
   final Function onPressed;
 
-  CustomDialog({this.message, this.color, this.text, this.onPressed});
+  CustomDialog(
+      {this.message,
+      this.color,
+      this.text,
+      this.onPressed,
+      @required this.size});
 
   @override
   Widget build(BuildContext context) {
@@ -25,11 +31,10 @@ class CustomDialog extends StatelessWidget {
         ),
       ),
       content: MyConfirmButton(
+        size: size,
         onPressed: onPressed,
         text: text,
       ),
     );
-
   }
-
 }

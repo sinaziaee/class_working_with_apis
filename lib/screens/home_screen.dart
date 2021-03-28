@@ -7,6 +7,7 @@ import 'package:http/http.dart' as http;
 import 'dart:convert' as convert;
 
 import 'package:working_with_apis/models/post.dart';
+import 'package:working_with_apis/models/user.dart';
 import 'package:working_with_apis/screens/post_detail_screen.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -17,17 +18,27 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  String url = '$mainUrl/api/posts_list/';
+  String url = '$mainUrl/api/post/all/';
   String token;
   Map args;
+  User user;
 
   @override
   Widget build(BuildContext context) {
+    print('---------------------------------------------');
     args = ModalRoute.of(context).settings.arguments;
-    token = args['token'];
+    // token = args['token'];
+    user = args['user'];
+    token = user.token;
+    print(token);
     return Scaffold(
+      appBar: AppBar(
+        title: Text('Home Screen'),
+      ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () {},
+        onPressed: () {
+
+        },
         child: Icon(Icons.add),
       ),
       body: FutureBuilder(

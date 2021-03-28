@@ -27,9 +27,8 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
       rePasswordController,
       firstNameController,
       lastNameController;
-  String token;
-
-  String url = '$mainUrl/api/register/';
+  Size size;
+  String url = '$mainUrl/api/account/register/';
 
   @override
   void initState() {
@@ -44,18 +43,19 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
   @override
   Widget build(BuildContext context) {
     node = FocusScope.of(context);
+    size = MediaQuery.of(context).size;
     return Scaffold(
       body: SafeArea(
         child: SingleChildScrollView(
           child: Column(
             children: [
               SizedBox(
-                height: LoginScreen.size.height * 0.02,
+                height: size.height * 0.02,
               ),
               Row(
                 children: [
                   SizedBox(
-                    width: LoginScreen.size.width * 0.05,
+                    width: size.width * 0.05,
                   ),
                   Text(
                     'Sign Up',
@@ -67,25 +67,28 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                 ],
               ),
               SizedBox(
-                height: LoginScreen.size.height * 0.03,
+                height: size.height * 0.03,
               ),
               MyTextField(
+                size: size,
                 hint: "First Name",
                 node: node,
                 isLast: false,
                 isPassword: false,
-                controller: emailController,
+                controller: firstNameController,
                 color: Colors.black,
               ),
               MyTextField(
+                size: size,
                 hint: "Last Name",
                 node: node,
                 isLast: false,
                 isPassword: false,
-                controller: emailController,
+                controller: lastNameController,
                 color: Colors.black,
               ),
               MyTextField(
+                size: size,
                 hint: "Email",
                 node: node,
                 isLast: false,
@@ -94,11 +97,12 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                 color: Colors.black,
               ),
               MyTextField(
+                size: size,
                 hint: "Password",
                 node: node,
                 isLast: false,
                 isPassword: true,
-                controller: emailController,
+                controller: passwordController,
                 color: Colors.black,
               ),
               MyTextField(
@@ -106,13 +110,15 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                 node: node,
                 isLast: true,
                 isPassword: true,
-                controller: passwordController,
+                controller: rePasswordController,
                 color: Colors.black,
+                size: size,
               ),
               SizedBox(
-                height: LoginScreen.size.height * 0.04,
+                height: size.height * 0.04,
               ),
               MyConfirmButton(
+                size: size,
                 text: 'Continue',
                 onPressed: () {
                   onContinuePressed();
@@ -155,7 +161,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
       _showDialog('Bad RePassword Format');
       return false;
     }
-    if (password == rePassword) {
+    if (password != rePassword) {
       _showDialog('Password and Re-Password do not match');
       return false;
     }
@@ -170,15 +176,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
 
   onContinuePressed() async {
     if (isValidated()) {
-      await uploadInfo(user);
-      await saveToPreferences(user);
-      Navigator.pushNamed(
-        context,
-        HomeScreen.id,
-        arguments: {
-          'user': user,
-        },
-      );
+      uploadInfo(user);
     } else {
       // pass
     }
@@ -189,6 +187,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
       context: context,
       builder: (BuildContext context) {
         return CustomDialog(
+          size: size,
           color: Colors.black,
           text: ' OK !!!',
           onPressed: () {
@@ -204,19 +203,30 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
     try {
       http.Response response = await http.post(
         Uri.parse(url),
-        body: {
-          user.toJson(),
-        },
+        body: convert.jsonEncode(user.toJson()),
         headers: {
           "Accept": "application/json",
           "content-type": "application/json"
         },
       );
-      var jsonResponse = convert.jsonDecode(response.body);
+      var jsonResponse;
+      print('***************************************************');
+      print(response.body);
+      print('***************************************************');
       if (response.statusCode < 400) {
+        jsonResponse = convert.jsonDecode(response.body);
         user.token = jsonResponse['token'];
-        // _showDialog('Successful');
+
+        await saveToPreferences(user);
+        Navigator.pushNamed(
+          context,
+          HomeScreen.id,
+          arguments: {
+            'user': user,
+          },
+        );
       } else {
+        jsonResponse = convert.jsonDecode(response.body);
         _showDialog('Error: ${jsonResponse['status']}');
         return;
       }
@@ -241,8 +251,8 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
     if (user.email != null) {
       preferences.setString("email", user.email);
     }
-    if (token != null) {
-      preferences.setString("token", token);
+    if (user.token != null) {
+      preferences.setString("token", 'Token ${user.token}');
     }
   }
 }

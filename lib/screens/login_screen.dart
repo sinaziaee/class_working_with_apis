@@ -12,7 +12,6 @@ import 'home_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   static String id = 'login_screen';
-  static Size size;
 
   @override
   _LoginScreenState createState() => _LoginScreenState();
@@ -22,15 +21,40 @@ class _LoginScreenState extends State<LoginScreen> {
   FocusNode node;
   TextEditingController emailController, passwordController;
   User user;
-  String token;
+  Size size;
+  String url = '$mainUrl/api/account/login/';
 
-  String url = '$mainUrl/api/login/';
+  @override
+  void initState() {
+    emailController = TextEditingController();
+    passwordController = TextEditingController();
+    super.initState();
+  }
 
-  Future<bool> getToken() async {
+  @override
+  void dispose() {
+    emailController.dispose();
+    passwordController.dispose();
+    super.dispose();
+  }
+
+  Future<void> getToken() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    if (prefs.getString("token") != null &&
-        prefs.getString("token").length != 0) {
-      Navigator.popAndPushNamed(context, HomeScreen.id);
+    User user = User(
+      firstName: prefs.getString('first_name'),
+      lastName: prefs.getString('last_name'),
+      token: prefs.getString('token'),
+      email: prefs.getString('email'),
+      password: prefs.getString('password'),
+    );
+    if (prefs.containsKey('token')) {
+      Navigator.popAndPushNamed(
+        context,
+        HomeScreen.id,
+        arguments: {
+          'user': user,
+        },
+      );
     } else {
       // pass
     }
@@ -39,80 +63,79 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     node = FocusScope.of(context);
-    LoginScreen.size = MediaQuery.of(context).size;
-    return FutureBuilder(
-      future: getToken(),
-      builder: (context, snapshot) {
-        return Scaffold(
-          body: SafeArea(
-            child: SingleChildScrollView(
-              child: Column(
+    size = MediaQuery.of(context).size;
+    return Scaffold(
+      body: SafeArea(
+        child: SingleChildScrollView(
+          child: Column(
+            children: [
+              SizedBox(
+                height: size.height * 0.02,
+              ),
+              Row(
                 children: [
                   SizedBox(
-                    height: LoginScreen.size.height * 0.02,
+                    width: size.width * 0.05,
                   ),
-                  Row(
-                    children: [
-                      SizedBox(
-                        width: LoginScreen.size.width * 0.05,
-                      ),
-                      Text(
-                        'Login',
-                        style: TextStyle(
-                          color: Colors.black,
-                          fontSize: 20,
-                        ),
-                      ),
-                    ],
-                  ),
-                  SizedBox(
-                    height: LoginScreen.size.height * 0.03,
-                  ),
-                  MyTextField(
-                    hint: "Email",
-                    node: node,
-                    isLast: false,
-                    isPassword: false,
-                    controller: emailController,
-                    color: Colors.black,
-                  ),
-                  SizedBox(
-                    height: LoginScreen.size.height * 0.005,
-                  ),
-                  MyTextField(
-                    hint: "Password",
-                    node: node,
-                    isLast: true,
-                    isPassword: true,
-                    controller: passwordController,
-                    color: Colors.black,
-                  ),
-                  SizedBox(
-                    height: LoginScreen.size.height * 0.04,
-                  ),
-                  MyConfirmButton(
-                    text: 'Continue',
-                    onPressed: () {
-                      onContinuePressed();
-                    },
-                  ),
-                  TextButton(
-                    onPressed: () {
-                      Navigator.popAndPushNamed(context, RegistrationScreen.id);
-                    },
-                    child: Text(
-                      'I don\'t have an account, go to sign up',
-                      style: TextStyle(
-                        color: Colors.grey[600],
-                      ),
+                  Text(
+                    'Login',
+                    style: TextStyle(
+                      color: Colors.black,
+                      fontSize: 20,
                     ),
                   ),
                 ],
               ),
-            ),
+              SizedBox(
+                height: size.height * 0.03,
+              ),
+              MyTextField(
+                hint: "Email",
+                node: node,
+                isLast: false,
+                isPassword: false,
+                controller: emailController,
+                color: Colors.black,
+                size: size,
+              ),
+              SizedBox(
+                height: size.height * 0.005,
+              ),
+              MyTextField(
+                size: size,
+                hint: "Password",
+                node: node,
+                isLast: true,
+                isPassword: true,
+                controller: passwordController,
+                color: Colors.black,
+              ),
+              SizedBox(
+                height: size.height * 0.04,
+              ),
+              MyConfirmButton(
+                size: size,
+                text: 'Continue',
+                onPressed: () {
+                  onContinuePressed();
+                },
+              ),
+              TextButton(
+                onPressed: () {
+                  Navigator.popAndPushNamed(
+                      context, RegistrationScreen.id);
+                },
+                child: Text(
+                  'I don\'t have an account, go to sign up',
+                  style: TextStyle(
+                    color: Colors.grey[600],
+                  ),
+                ),
+              ),
+            ],
           ),
-        );
-      },
+        ),
+      ),
     );
   }
 
@@ -126,20 +149,13 @@ class _LoginScreenState extends State<LoginScreen> {
       _showDialog('Bad Password Format');
       return false;
     }
+    user = User(email: email, password: password);
     return true;
   }
 
   onContinuePressed() async {
     if (isValidated()) {
-      await uploadInfo(user);
-      await saveToPreferences(user);
-      Navigator.pushNamed(
-        context,
-        HomeScreen.id,
-        arguments: {
-          'user': user,
-        },
-      );
+      uploadInfo(user);
     } else {
       // pass
     }
@@ -150,6 +166,7 @@ class _LoginScreenState extends State<LoginScreen> {
       context: context,
       builder: (BuildContext context) {
         return CustomDialog(
+          size: size,
           color: Colors.black,
           text: 'OK !!!',
           onPressed: () {
@@ -165,21 +182,36 @@ class _LoginScreenState extends State<LoginScreen> {
     try {
       http.Response response = await http.post(
         Uri.parse(url),
-        body: {
-          user.toJson(),
-        },
+        body: convert.jsonEncode({
+          'username': user.email,
+          'password': user.password,
+        }),
         headers: {
           "Accept": "application/json",
           "content-type": "application/json"
         },
       );
-      var jsonResponse = convert.jsonDecode(response.body);
+      var jsonResponse;
+      print('***************************************************');
+      print(response.body);
+      print('***************************************************');
       if (response.statusCode < 400) {
+        jsonResponse = convert.jsonDecode(response.body);
         user.token = jsonResponse['token'];
         user.firstName = jsonResponse['first_name'];
         user.lastName = jsonResponse['last_name'];
-        // _showDialog('Successful');
+        user.email = jsonResponse['email'];
+        user.password = jsonResponse['password'];
+        await saveToPreferences(user);
+        Navigator.pushNamed(
+          context,
+          HomeScreen.id,
+          arguments: {
+            'user': user,
+          },
+        );
       } else {
+        jsonResponse = convert.jsonDecode(response.body);
         _showDialog('Error: ${jsonResponse['status']}');
         return;
       }
@@ -204,8 +236,8 @@ class _LoginScreenState extends State<LoginScreen> {
     if (user.email != null) {
       preferences.setString("email", user.email);
     }
-    if (token != null) {
-      preferences.setString("token", token);
+    if (user.token != null) {
+      preferences.setString("token", 'Token ${user.token}');
     }
   }
 }

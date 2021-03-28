@@ -7,16 +7,17 @@ class MyConfirmButton extends StatelessWidget {
   final String text;
   final Function onPressed;
   final Color color;
+  final Size size;
 
-  MyConfirmButton({this.text, this.onPressed, this.color});
+  MyConfirmButton({this.text, this.onPressed, this.color, @required this.size});
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: LoginScreen.size.width,
-      height: LoginScreen.size.height * 0.06,
+      width: size.width,
+      height: size.height * 0.06,
       margin: EdgeInsets.symmetric(
-        horizontal: LoginScreen.size.width * 0.05,
+        horizontal: size.width * 0.05,
       ),
       child: ElevatedButton(
         style: ButtonStyle(
