@@ -40,14 +40,19 @@ class _LoginScreenState extends State<LoginScreen> {
 
   Future<void> getToken() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    User user = User(
-      firstName: prefs.getString('first_name'),
-      lastName: prefs.getString('last_name'),
-      token: prefs.getString('token'),
-      email: prefs.getString('email'),
-      password: prefs.getString('password'),
-    );
     if (prefs.containsKey('token')) {
+      String firstName = prefs.getString('first_name');
+          String lastName = prefs.getString('last_name');
+    String token = prefs.getString('token');
+    String email = prefs.getString('email');
+    String password = prefs.getString('password');
+      User user = User(
+        firstName: firstName,
+        lastName: lastName,
+        token: token,
+        email: email,
+        password: password,
+      );
       Navigator.popAndPushNamed(
         context,
         HomeScreen.id,
@@ -64,78 +69,90 @@ class _LoginScreenState extends State<LoginScreen> {
   Widget build(BuildContext context) {
     node = FocusScope.of(context);
     size = MediaQuery.of(context).size;
-    return Scaffold(
-      body: SafeArea(
-        child: SingleChildScrollView(
-          child: Column(
-            children: [
-              SizedBox(
-                height: size.height * 0.02,
-              ),
-              Row(
-                children: [
-                  SizedBox(
-                    width: size.width * 0.05,
-                  ),
-                  Text(
-                    'Login',
-                    style: TextStyle(
-                      color: Colors.black,
-                      fontSize: 20,
+    return FutureBuilder(
+      future: getToken(),
+      builder: (context, snapshot) {
+        if (snapshot.hasData &&
+            snapshot.connectionState == ConnectionState.done) {
+          return Scaffold(
+            body: SafeArea(
+              child: SingleChildScrollView(
+                child: Column(
+                  children: [
+                    SizedBox(
+                      height: size.height * 0.02,
                     ),
-                  ),
-                ],
-              ),
-              SizedBox(
-                height: size.height * 0.03,
-              ),
-              MyTextField(
-                hint: "Email",
-                node: node,
-                isLast: false,
-                isPassword: false,
-                controller: emailController,
-                color: Colors.black,
-                size: size,
-              ),
-              SizedBox(
-                height: size.height * 0.005,
-              ),
-              MyTextField(
-                size: size,
-                hint: "Password",
-                node: node,
-                isLast: true,
-                isPassword: true,
-                controller: passwordController,
-                color: Colors.black,
-              ),
-              SizedBox(
-                height: size.height * 0.04,
-              ),
-              MyConfirmButton(
-                size: size,
-                text: 'Continue',
-                onPressed: () {
-                  onContinuePressed();
-                },
-              ),
-              TextButton(
-                onPressed: () {
-                  Navigator.popAndPushNamed(
-                      context, RegistrationScreen.id);
-                },
-                child: Text(
-                  'I don\'t have an account, go to sign up',
-                  style: TextStyle(
-                    color: Colors.grey[600],
-                  ),
+                    Row(
+                      children: [
+                        SizedBox(
+                          width: size.width * 0.05,
+                        ),
+                        Text(
+                          'Login',
+                          style: TextStyle(
+                            color: Colors.black,
+                            fontSize: 20,
+                          ),
+                        ),
+                      ],
+                    ),
+                    SizedBox(
+                      height: size.height * 0.03,
+                    ),
+                    MyTextField(
+                      hint: "Email",
+                      node: node,
+                      isLast: false,
+                      isPassword: false,
+                      controller: emailController,
+                      color: Colors.black,
+                      size: size,
+                    ),
+                    SizedBox(
+                      height: size.height * 0.005,
+                    ),
+                    MyTextField(
+                      size: size,
+                      hint: "Password",
+                      node: node,
+                      isLast: true,
+                      isPassword: true,
+                      controller: passwordController,
+                      color: Colors.black,
+                    ),
+                    SizedBox(
+                      height: size.height * 0.04,
+                    ),
+                    MyConfirmButton(
+                      size: size,
+                      text: 'Continue',
+                      onPressed: () {
+                        onContinuePressed();
+                      },
+                    ),
+                    TextButton(
+                      onPressed: () {
+                        Navigator.popAndPushNamed(
+                            context, RegistrationScreen.id);
+                      },
+                      child: Text(
+                        'I don\'t have an account, go to sign up',
+                        style: TextStyle(
+                          color: Colors.grey[600],
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ),
-            ],
-          ),
-        ),
-      ),
+            ),
+          );
+        } else {
+          return Center(
+            child: CircularProgressIndicator(),
+          );
+        }
+      },
     );
   }
 

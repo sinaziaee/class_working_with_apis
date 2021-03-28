@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:working_with_apis/screens/home_screen.dart';
 import 'package:working_with_apis/screens/login_screen.dart';
+import 'package:working_with_apis/screens/new_post_screen.dart';
 import 'package:working_with_apis/screens/post_detail_screen.dart';
 import 'package:working_with_apis/screens/registeration_screen.dart';
 
@@ -23,6 +24,7 @@ class MyApp extends StatelessWidget {
         LoginScreen.id: (context) => LoginScreen(),
         HomeScreen.id: (context) => HomeScreen(),
         PostDetailScreen.id: (context) => PostDetailScreen(),
+        NewPostScreen.id: (context) => NewPostScreen(),
       },
     );
   }

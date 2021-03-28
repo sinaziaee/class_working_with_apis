@@ -8,6 +8,7 @@ import 'dart:convert' as convert;
 
 import 'package:working_with_apis/models/post.dart';
 import 'package:working_with_apis/models/user.dart';
+import 'package:working_with_apis/screens/new_post_screen.dart';
 import 'package:working_with_apis/screens/post_detail_screen.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -25,74 +26,104 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    print('---------------------------------------------');
     args = ModalRoute.of(context).settings.arguments;
     // token = args['token'];
     user = args['user'];
     token = user.token;
-    print(token);
+
+    _refresher() async {
+      setState(() {});
+      return true;
+    }
+
     return Scaffold(
       appBar: AppBar(
         title: Text('Home Screen'),
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-
+          Navigator.pushNamed(
+            context,
+            NewPostScreen.id,
+            arguments: {
+              'user': user,
+            },
+          );
         },
         child: Icon(Icons.add),
       ),
-      body: FutureBuilder(
-        future: http.get(
-          Uri.parse(url),
-          headers: {HttpHeaders.authorizationHeader: token},
-        ),
-        builder: (BuildContext context, AsyncSnapshot snapshot) {
-          if (snapshot.hasData &&
-              snapshot.connectionState == ConnectionState.done) {
-            http.Response response = snapshot.data;
-            var jsonResponse;
-            if (response.statusCode < 400) {
-              jsonResponse = convert.jsonDecode(response.body);
-              // jsonResponse = convert.jsonDecode(convert.utf8.decode(response.bodyBytes));
-              List<Post> postList = [];
-              int count = 0;
-              // print(jsonResponse);
-              for (Map map in jsonResponse) {
-                count++;
-                Post post = Post.fromJson(map);
-                postList.add(post);
-              }
-              if (count == 0) {
-                return Center(
-                  child: Text('Posts not found !!!'),
-                );
-              } else {
-                return ListView.builder(
-                  itemBuilder: (context, index) {
-                    return PostItem(
-                      postList[index],
-                      () {
-                        onTapped(postList[index], index);
-                      },
-                    );
-                  },
-                );
-              }
-            } else {
-              return Center(
-                child: CircularProgressIndicator(),
-              );
-            }
-            return SizedBox();
-          } else {
-            return CircularProgressIndicator();
-          }
+      body: RefreshIndicator(
+        onRefresh: () {
+          return _refresher();
         },
+        child: FutureBuilder(
+          future: http.get(
+            Uri.parse(url),
+            headers: {HttpHeaders.authorizationHeader: token},
+          ),
+          builder: (BuildContext context, AsyncSnapshot snapshot) {
+            if (snapshot.hasData &&
+                snapshot.connectionState == ConnectionState.done) {
+              http.Response response = snapshot.data;
+              var jsonResponse;
+              print(response.body);
+              if (response.statusCode < 400) {
+                jsonResponse = convert.jsonDecode(response.body);
+                // jsonResponse = convert.jsonDecode(convert.utf8.decode(response.bodyBytes));
+                List<Post> postList = [];
+                int count = 0;
+                for (Map map in jsonResponse) {
+                  count++;
+                  Post post = Post.fromJson(map);
+                  postList.add(post);
+                }
+                if (count == 0) {
+                  return Center(
+                    child: Text('Posts not found !!!'),
+                  );
+                } else {
+                  return ListView.builder(
+                    itemCount: count,
+                    itemBuilder: (context, index) {
+                      return PostItem(
+                        postList[index],
+                        () {
+                          onTapped(postList[index], index);
+                        },
+                      );
+                    },
+                  );
+                }
+              } else {
+                return Center(
+                  child: Text(
+                    'An Error happened',
+                    style: TextStyle(
+                      color: Colors.black,
+                      fontSize: 20,
+                    ),
+                  ),
+                );
+              }
+              return SizedBox();
+            } else {
+              return Center(child: CircularProgressIndicator());
+            }
+          },
+        ),
       ),
     );
   }
 
   void onTapped(Post post, int index) {
-    Navigator.pushNamed(context, PostDetailScreen.id);
+    Navigator.pushNamed(
+      context,
+      PostDetailScreen.id,
+      arguments: {
+        'user': user,
+        'post_id': index,
+        'post': post,
+      },
+    );
   }
 }
