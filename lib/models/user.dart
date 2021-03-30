@@ -3,15 +3,15 @@ class User {
 
   User({this.firstName, this.email, this.lastName, this.token, this.password});
 
-  User.fromJson(Map<String, dynamic> json) {
-    firstName = json['firstName'];
-    lastName = json['lastName'];
-    password = json['password'];
-    email = json['token'];
-    token = json['email'];
+  User.fromMap(Map<String, dynamic> map) {
+    firstName = map['firstName'];
+    lastName = map['lastName'];
+    password = map['password'];
+    email = map['token'];
+    token = map['email'];
   }
 
-  Map<String, dynamic> toJson() {
+  Map<String, dynamic> toMap() {
     final Map<String, dynamic> data = new Map<String, dynamic>();
     data['first_name'] = this.firstName;
     data['last_name'] = this.lastName;

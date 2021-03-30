@@ -26,6 +26,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   void initState() {
+    getToken();
     emailController = TextEditingController();
     passwordController = TextEditingController();
     super.initState();
@@ -38,30 +39,26 @@ class _LoginScreenState extends State<LoginScreen> {
     super.dispose();
   }
 
-  Future<void> getToken() async {
+  getToken() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     if (prefs.containsKey('token')) {
-      String firstName = prefs.getString('first_name');
-          String lastName = prefs.getString('last_name');
+      String firstName = prefs.getString('firstName');
+          String lastName = prefs.getString('lastName');
     String token = prefs.getString('token');
     String email = prefs.getString('email');
     String password = prefs.getString('password');
-      User user = User(
+      user = User(
         firstName: firstName,
         lastName: lastName,
         token: token,
         email: email,
         password: password,
       );
-      Navigator.popAndPushNamed(
-        context,
-        HomeScreen.id,
-        arguments: {
-          'user': user,
-        },
-      );
+      Navigator.popAndPushNamed(context, HomeScreen.id, arguments: {
+        'user': user,
+      });
     } else {
-      // pass
+      //pass
     }
   }
 
@@ -69,90 +66,77 @@ class _LoginScreenState extends State<LoginScreen> {
   Widget build(BuildContext context) {
     node = FocusScope.of(context);
     size = MediaQuery.of(context).size;
-    return FutureBuilder(
-      future: getToken(),
-      builder: (context, snapshot) {
-        if (snapshot.hasData &&
-            snapshot.connectionState == ConnectionState.done) {
-          return Scaffold(
-            body: SafeArea(
-              child: SingleChildScrollView(
-                child: Column(
-                  children: [
-                    SizedBox(
-                      height: size.height * 0.02,
-                    ),
-                    Row(
-                      children: [
-                        SizedBox(
-                          width: size.width * 0.05,
-                        ),
-                        Text(
-                          'Login',
-                          style: TextStyle(
-                            color: Colors.black,
-                            fontSize: 20,
-                          ),
-                        ),
-                      ],
-                    ),
-                    SizedBox(
-                      height: size.height * 0.03,
-                    ),
-                    MyTextField(
-                      hint: "Email",
-                      node: node,
-                      isLast: false,
-                      isPassword: false,
-                      controller: emailController,
-                      color: Colors.black,
-                      size: size,
-                    ),
-                    SizedBox(
-                      height: size.height * 0.005,
-                    ),
-                    MyTextField(
-                      size: size,
-                      hint: "Password",
-                      node: node,
-                      isLast: true,
-                      isPassword: true,
-                      controller: passwordController,
+    return Scaffold(
+      body: SafeArea(
+        child: SingleChildScrollView(
+          child: Column(
+            children: [
+              SizedBox(
+                height: size.height * 0.02,
+              ),
+              Row(
+                children: [
+                  SizedBox(
+                    width: size.width * 0.05,
+                  ),
+                  Text(
+                    'Login',
+                    style: kHeaderTextStyle.copyWith(
                       color: Colors.black,
                     ),
-                    SizedBox(
-                      height: size.height * 0.04,
-                    ),
-                    MyConfirmButton(
-                      size: size,
-                      text: 'Continue',
-                      onPressed: () {
-                        onContinuePressed();
-                      },
-                    ),
-                    TextButton(
-                      onPressed: () {
-                        Navigator.popAndPushNamed(
-                            context, RegistrationScreen.id);
-                      },
-                      child: Text(
-                        'I don\'t have an account, go to sign up',
-                        style: TextStyle(
-                          color: Colors.grey[600],
-                        ),
-                      ),
-                    ),
-                  ],
+                  ),
+                ],
+              ),
+              SizedBox(
+                height: size.height * 0.03,
+              ),
+              MyTextField(
+                hint: "Email",
+                node: node,
+                isLast: false,
+                isPassword: false,
+                controller: emailController,
+                color: Colors.black,
+                size: size,
+              ),
+              SizedBox(
+                height: size.height * 0.005,
+              ),
+              MyTextField(
+                size: size,
+                hint: "Password",
+                node: node,
+                isLast: true,
+                isPassword: true,
+                controller: passwordController,
+                color: Colors.black,
+              ),
+              SizedBox(
+                height: size.height * 0.04,
+              ),
+              MyConfirmButton(
+                size: size,
+                text: 'Continue',
+                onPressed: () {
+                  onContinuePressed();
+                },
+              ),
+              TextButton(
+                onPressed: () {
+                  Navigator.popAndPushNamed(
+                      context, RegistrationScreen.id);
+                },
+                child: Text(
+                  'I don\'t have an account, go to sign up',
+                  style: TextStyle(
+                    color: Colors.grey[600],
+                  ),
                 ),
               ),
-            ),
-          );
-        } else {
-          return Center(
-            child: CircularProgressIndicator(),
-          );
-        }
-      },
+            ],
+          ),
+        ),
+      ),
     );
   }
 
@@ -162,7 +146,7 @@ class _LoginScreenState extends State<LoginScreen> {
     if (email.length < 3) {
       _showDialog('Bad Email Format');
       return false;
-    } else if (password.length < 3) {
+    } else if (password.length < 6) {
       _showDialog('Bad Password Format');
       return false;
     }
@@ -214,13 +198,13 @@ class _LoginScreenState extends State<LoginScreen> {
       print('***************************************************');
       if (response.statusCode < 400) {
         jsonResponse = convert.jsonDecode(response.body);
-        user.token = jsonResponse['token'];
+        user.token = 'Token ${jsonResponse['token']}';
         user.firstName = jsonResponse['first_name'];
         user.lastName = jsonResponse['last_name'];
         user.email = jsonResponse['email'];
         user.password = jsonResponse['password'];
         await saveToPreferences(user);
-        Navigator.pushNamed(
+        Navigator.popAndPushNamed(
           context,
           HomeScreen.id,
           arguments: {

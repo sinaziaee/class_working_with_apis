@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:working_with_apis/components/post_item.dart';
 import 'package:working_with_apis/constants.dart';
 import 'package:http/http.dart' as http;
@@ -8,6 +9,7 @@ import 'dart:convert' as convert;
 
 import 'package:working_with_apis/models/post.dart';
 import 'package:working_with_apis/models/user.dart';
+import 'package:working_with_apis/screens/login_screen.dart';
 import 'package:working_with_apis/screens/new_post_screen.dart';
 import 'package:working_with_apis/screens/post_detail_screen.dart';
 
@@ -29,6 +31,8 @@ class _HomeScreenState extends State<HomeScreen> {
     args = ModalRoute.of(context).settings.arguments;
     // token = args['token'];
     user = args['user'];
+    print('In homeScreen, user is: ${user.firstName} ${user.lastName} \n '
+        'with token: ${user.token}');
     token = user.token;
 
     _refresher() async {
@@ -39,6 +43,11 @@ class _HomeScreenState extends State<HomeScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text('Home Screen'),
+        actions: [
+          IconButton(icon: Icon(Icons.exit_to_app), onPressed: (){
+            logOut();
+          }),
+        ],
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
@@ -74,7 +83,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 int count = 0;
                 for (Map map in jsonResponse) {
                   count++;
-                  Post post = Post.fromJson(map);
+                  Post post = Post.fromMap(map);
                   postList.add(post);
                 }
                 if (count == 0) {
@@ -121,9 +130,16 @@ class _HomeScreenState extends State<HomeScreen> {
       PostDetailScreen.id,
       arguments: {
         'user': user,
-        'post_id': index,
+        'post_id': post.postId,
         'post': post,
       },
     );
   }
+
+  void logOut() async{
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.clear();
+    Navigator.popAndPushNamed(context, LoginScreen.id);
+  }
+
 }

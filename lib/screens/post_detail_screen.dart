@@ -46,13 +46,13 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
           if (response.statusCode < 400) {
             var jsonResponse =
                 convert.jsonDecode(convert.utf8.decode(response.bodyBytes));
-            Post post = Post.fromJson(jsonResponse);
+            Post post = Post.fromMap(jsonResponse);
             return Scaffold(
               appBar: AppBar(
-                title: Text(post.title ?? 'Title'),
+                title: Text('Post Detail Screen'),
                 actions: [
                   Text(
-                    post.dateTime.toString(),
+                    post.dateTime.toString().substring(0,10),
                   ),
                 ],
               ),
@@ -60,7 +60,17 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.start,
                   children: [
+                    SizedBox(
+                      height: 30,
+                    ),
+                    getText(post.title, 30, 25),
+                    SizedBox(
+                      height: 50,
+                    ),
                     getText('Post by ${post.sender}', 20, 20),
+                    SizedBox(
+                      height: 20,
+                    ),
                     getText(post.description, 30, 17),
                   ],
                 ),
@@ -73,7 +83,7 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
               ),
               body: Center(
                 child: Container(
-                  child: Text('Message not found !!!'),
+                  child: Text('Post not found !!!'),
                 ),
               ),
             );

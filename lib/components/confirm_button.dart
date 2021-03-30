@@ -22,7 +22,7 @@ class MyConfirmButton extends StatelessWidget {
       child: ElevatedButton(
         style: ButtonStyle(
           backgroundColor: MaterialStateProperty.all(
-            color ?? Colors.red,
+            color ?? Colors.blue,
           ),
           elevation: MaterialStateProperty.all(0),
           shape: MaterialStateProperty.all(

@@ -142,7 +142,7 @@ class _NewPostScreenState extends State<NewPostScreen> {
     try {
       http.Response response = await http.post(
         Uri.parse(url),
-        body: convert.jsonEncode(post.toJson()),
+        body: convert.jsonEncode(post.toMap()),
         headers: {
           "Accept": "application/json",
           "content-type": "application/json",

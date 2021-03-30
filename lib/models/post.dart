@@ -1,14 +1,16 @@
 class Post {
+  int postId;
   String title, description, sender;
   DateTime dateTime;
 
-  Post({this.title, this.description, this.dateTime, this.sender});
+  Post({this.title, this.description, this.dateTime, this.sender,this.postId});
 
-  Post.fromJson(Map<String, dynamic> json) {
-    title = json['title'];
-    description = json['description'];
+  Post.fromMap(Map<String, dynamic> map) {
+    title = map['title'];
+    postId = map['post_id'];
+    description = map['description'];
     // print('=================');
-    String dt = json['dateTime'].toString();
+    String dt = map['dateTime'].toString();
     // print(dt);
     // print('=================');
     List<String> date = dt.substring(0, 10).split('-');
@@ -21,12 +23,13 @@ class Post {
       int.parse(time[1]),
       int.parse(time[2]),
     );
-    sender = json['sender'].toString();
+    sender = map['sender'].toString();
   }
 
-  Map<String, dynamic> toJson() {
+  Map<String, dynamic> toMap() {
     final Map<String, dynamic> data = new Map<String, dynamic>();
     data['title'] = this.title;
+    data['post_id'] = this.postId;
     data['description'] = this.description;
     data['dateTime'] = this.dateTime;
     data['sender'] = this.sender;

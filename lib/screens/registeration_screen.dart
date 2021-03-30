@@ -41,6 +41,16 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
   }
 
   @override
+  void dispose() {
+    firstNameController.dispose();
+    lastNameController.dispose();
+    emailController.dispose();
+    passwordController.dispose();
+    rePasswordController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     node = FocusScope.of(context);
     size = MediaQuery.of(context).size;
@@ -59,9 +69,8 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                   ),
                   Text(
                     'Sign Up',
-                    style: TextStyle(
+                    style: kHeaderTextStyle.copyWith(
                       color: Colors.black,
-                      fontSize: 20,
                     ),
                   ),
                 ],
@@ -154,10 +163,10 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
     } else if (lastName.length < 3) {
       _showDialog('Bad Last Name Format');
       return false;
-    } else if (password.length < 3) {
+    } else if (password.length < 6) {
       _showDialog('Bad Password Format');
       return false;
-    } else if (rePassword.length < 3) {
+    } else if (rePassword.length < 6) {
       _showDialog('Bad RePassword Format');
       return false;
     }
@@ -174,7 +183,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
     return true;
   }
 
-  onContinuePressed() async {
+  onContinuePressed() {
     if (isValidated()) {
       uploadInfo(user);
     } else {
@@ -203,7 +212,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
     try {
       http.Response response = await http.post(
         Uri.parse(url),
-        body: convert.jsonEncode(user.toJson()),
+        body: convert.jsonEncode(user.toMap()),
         headers: {
           "Accept": "application/json",
           "content-type": "application/json"

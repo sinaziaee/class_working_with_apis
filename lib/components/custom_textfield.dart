@@ -29,6 +29,7 @@ class MyTextField extends StatelessWidget {
           horizontal: size.width * 0.05,
           vertical: size.height * 0.005),
       child: TextFormField(
+        obscureText: isPassword,
         controller: controller,
         onEditingComplete: () => (isLast == null || isLast == false)
             ? node.nextFocus()
