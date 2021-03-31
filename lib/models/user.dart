@@ -3,12 +3,13 @@ class User {
 
   User({this.firstName, this.email, this.lastName, this.token, this.password});
 
+  // Named constructor
   User.fromMap(Map<String, dynamic> map) {
     firstName = map['firstName'];
     lastName = map['lastName'];
     password = map['password'];
-    email = map['token'];
-    token = map['email'];
+    email = map['email'];
+    token = 'Token ${map['token']}';
   }
 
   Map<String, dynamic> toMap() {

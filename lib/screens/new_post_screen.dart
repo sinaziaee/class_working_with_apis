@@ -146,7 +146,7 @@ class _NewPostScreenState extends State<NewPostScreen> {
         headers: {
           "Accept": "application/json",
           "content-type": "application/json",
-          HttpHeaders.authorizationHeader: user.token,
+          // HttpHeaders.authorizationHeader: user.token,
         },
       );
       var jsonResponse;
@@ -162,6 +162,7 @@ class _NewPostScreenState extends State<NewPostScreen> {
 
         });
       } else {
+        // Todo: what happens if we do not send token
         jsonResponse = convert.jsonDecode(response.body);
         _showDialog('Error: ${jsonResponse['status']}');
         return;

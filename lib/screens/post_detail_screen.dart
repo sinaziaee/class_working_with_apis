@@ -23,13 +23,17 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
   Map args;
   int postId;
   User user;
+  Post post;
 
   @override
   Widget build(BuildContext context) {
     args = ModalRoute.of(context).settings.arguments;
     postId = args['post_id'];
     user = args['user'];
+    post = args['post'];
     print('url: $url/$postId');
+
+    // return bodyBuilder(post);
     return FutureBuilder(
       future: http.get(
         Uri.parse('$url/?post_id=$postId'),
@@ -51,8 +55,11 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
               appBar: AppBar(
                 title: Text('Post Detail Screen'),
                 actions: [
-                  Text(
-                    post.dateTime.toString().substring(0,10),
+                  Padding(
+                    padding: EdgeInsets.only(right: 5),
+                    child: Text(
+                      post.dateTime.toString().substring(0,10),
+                    ),
                   ),
                 ],
               ),
@@ -98,6 +105,13 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
       },
     );
   }
+
+  // TODO: Homework: week 2
+  Widget bodyBuilder(Post post){
+
+  }
+
+  //Todo: Homework: update custom_textfield file in order to have a dynamic height for MyTextfiled widget
 
   Widget getText(String data, double horizontal, double size) {
     return Padding(

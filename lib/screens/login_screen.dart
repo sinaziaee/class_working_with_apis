@@ -43,10 +43,10 @@ class _LoginScreenState extends State<LoginScreen> {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     if (prefs.containsKey('token')) {
       String firstName = prefs.getString('firstName');
-          String lastName = prefs.getString('lastName');
-    String token = prefs.getString('token');
-    String email = prefs.getString('email');
-    String password = prefs.getString('password');
+      String lastName = prefs.getString('lastName');
+      String token = prefs.getString('token');
+      String email = prefs.getString('email');
+      String password = prefs.getString('password');
       user = User(
         firstName: firstName,
         lastName: lastName,
@@ -54,9 +54,13 @@ class _LoginScreenState extends State<LoginScreen> {
         email: email,
         password: password,
       );
-      Navigator.popAndPushNamed(context, HomeScreen.id, arguments: {
-        'user': user,
-      });
+      Navigator.popAndPushNamed(
+        context,
+        HomeScreen.id,
+        arguments: {
+          'user': user,
+        },
+      );
     } else {
       //pass
     }
@@ -123,8 +127,7 @@ class _LoginScreenState extends State<LoginScreen> {
               ),
               TextButton(
                 onPressed: () {
-                  Navigator.popAndPushNamed(
-                      context, RegistrationScreen.id);
+                  Navigator.popAndPushNamed(context, RegistrationScreen.id);
                 },
                 child: Text(
                   'I don\'t have an account, go to sign up',
@@ -155,8 +158,8 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   onContinuePressed() async {
-    if (isValidated()) {
-      uploadInfo(user);
+    if (isValidated() == true) {
+      uploadInfo();
     } else {
       // pass
     }
@@ -179,14 +182,17 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
-  Future<void> uploadInfo(User user) async {
+  Future<void> uploadInfo() async {
+    // get, post, put, delete
     try {
       http.Response response = await http.post(
         Uri.parse(url),
-        body: convert.jsonEncode({
-          'username': user.email,
-          'password': user.password,
-        }),
+        body: convert.jsonEncode(
+          {
+            'username': user.email,
+            'password': user.password,
+          },
+        ),
         headers: {
           "Accept": "application/json",
           "content-type": "application/json"
@@ -194,15 +200,14 @@ class _LoginScreenState extends State<LoginScreen> {
       );
       var jsonResponse;
       print('***************************************************');
+      print(response.statusCode);
       print(response.body);
       print('***************************************************');
-      if (response.statusCode < 400) {
+      if (response.statusCode < 300) {
+        // encode: کدگذاری کردن
+        // decode: کدگشایی
         jsonResponse = convert.jsonDecode(response.body);
-        user.token = 'Token ${jsonResponse['token']}';
-        user.firstName = jsonResponse['first_name'];
-        user.lastName = jsonResponse['last_name'];
-        user.email = jsonResponse['email'];
-        user.password = jsonResponse['password'];
+        user = User.fromMap(jsonResponse);
         await saveToPreferences(user);
         Navigator.popAndPushNamed(
           context,
@@ -213,7 +218,12 @@ class _LoginScreenState extends State<LoginScreen> {
         );
       } else {
         jsonResponse = convert.jsonDecode(response.body);
-        _showDialog('Error: ${jsonResponse['status']}');
+        print(jsonResponse);
+        if (jsonResponse['non_field_errors'] != null) {
+          _showDialog('No user found with this email and password');
+        } else {
+          _showDialog('Error: ${jsonResponse['status']}');
+        }
         return;
       }
     } catch (e) {
@@ -238,7 +248,7 @@ class _LoginScreenState extends State<LoginScreen> {
       preferences.setString("email", user.email);
     }
     if (user.token != null) {
-      preferences.setString("token", 'Token ${user.token}');
+      preferences.setString("token", user.token);
     }
   }
 }

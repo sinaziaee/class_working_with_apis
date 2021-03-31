@@ -185,7 +185,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
 
   onContinuePressed() {
     if (isValidated()) {
-      uploadInfo(user);
+      uploadInfo();
     } else {
       // pass
     }
@@ -208,7 +208,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
     );
   }
 
-  Future<void> uploadInfo(User user) async {
+  Future<void> uploadInfo() async {
     try {
       http.Response response = await http.post(
         Uri.parse(url),
@@ -224,9 +224,8 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
       print('***************************************************');
       if (response.statusCode < 400) {
         jsonResponse = convert.jsonDecode(response.body);
-        user.token = jsonResponse['token'];
-
-        await saveToPreferences(user);
+        user = User.fromMap(jsonResponse);
+        await saveToPreferences();
         Navigator.pushNamed(
           context,
           HomeScreen.id,
@@ -235,8 +234,15 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
           },
         );
       } else {
+        print(response.statusCode);
+        print(response.body);
         jsonResponse = convert.jsonDecode(response.body);
-        _showDialog('Error: ${jsonResponse['status']}');
+        if(jsonResponse['email'] != null){
+          _showDialog('Error: A user with this email already exists');
+        }
+        else{
+          _showDialog('Error: ${jsonResponse['status']}');
+        }
         return;
       }
     } catch (e) {
@@ -246,7 +252,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
     }
   }
 
-  Future<void> saveToPreferences(User user) async {
+  Future<void> saveToPreferences() async {
     SharedPreferences preferences = await SharedPreferences.getInstance();
     if (user.firstName != null) {
       preferences.setString("firstName", user.firstName);
@@ -261,7 +267,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
       preferences.setString("email", user.email);
     }
     if (user.token != null) {
-      preferences.setString("token", 'Token ${user.token}');
+      preferences.setString("token", user.token);
     }
   }
 }

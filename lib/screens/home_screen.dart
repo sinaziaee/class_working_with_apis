@@ -76,7 +76,7 @@ class _HomeScreenState extends State<HomeScreen> {
               http.Response response = snapshot.data;
               var jsonResponse;
               print(response.body);
-              if (response.statusCode < 400) {
+              if (response.statusCode < 300) {
                 jsonResponse = convert.jsonDecode(response.body);
                 // jsonResponse = convert.jsonDecode(convert.utf8.decode(response.bodyBytes));
                 List<Post> postList = [];
@@ -97,7 +97,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       return PostItem(
                         postList[index],
                         () {
-                          onTapped(postList[index], index);
+                          onTapped(postList[index]);
                         },
                       );
                     },
@@ -124,7 +124,7 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  void onTapped(Post post, int index) {
+  void onTapped(Post post) {
     Navigator.pushNamed(
       context,
       PostDetailScreen.id,
